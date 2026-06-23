@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUKER · DDoS Attack</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background:#000;
+            color:#00ff41;
+            font-family:'Courier New',monospace;
+            padding:20px;
+            min-height:100vh;
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, rgba(0,255,65,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(0,255,65,0.03) 0%, transparent 50%);
+        }
+        .container { max-width:800px; margin:0 auto; }
+        
+        .header { 
+            text-align:center; 
+            border-bottom:2px solid #00ff41; 
+            padding-bottom:10px; 
+            margin-bottom:20px;
+            box-shadow: 0 0 30px rgba(0,255,65,0.1);
+        }
+        .header h1 { 
+            color:#ff0040; 
+            font-size:36px; 
+            letter-spacing:8px; 
+            text-shadow: 0 0 20px #ff0040, 0 0 40px rgba(255,0,64,0.3);
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 90%, 100% { opacity:1; }
+            92% { opacity:0.8; text-shadow: 2px 0 #00ff41, -2px 0 #ff0040; }
+            94% { opacity:1; text-shadow: -2px 0 #00ff41, 2px 0 #ff0040; }
+        }
+        .header h1 span { color:#00ff41; text-shadow: 0 0 20px #00ff41, 0 0 40px rgba(0,255,65,0.3); }
+        .header p { color:#00cc33; font-size:13px; letter-spacing:2px; }
+        .header .sub { color:#008822; font-size:11px; }
+        
+        .card { 
+            background:rgba(0,20,10,0.85); 
+            border:1px solid #00ff41; 
+            padding:18px; 
+            border-radius:6px; 
+            margin-bottom:16px;
+            box-shadow: 0 0 20px rgba(0,255,65,0.05), inset 0 0 20px rgba(0,255,65,0.02);
+        }
+        .card h3 { 
+            color:#ff0040; 
+            border-bottom:1px dashed #ff0040; 
+            padding-bottom:6px; 
+            margin-bottom:12px;
+            text-shadow: 0 0 10px rgba(255,0,64,0.2);
+        }
+        .row { display:flex; gap:10px; margin:8px 0; flex-wrap:wrap; align-items:center; }
+        .row label { min-width:100px; color:#00cc33; }
+        input, select, button { 
+            background:#001a0a; 
+            border:1px solid #00ff41; 
+            color:#00ff41; 
+            padding:8px 12px; 
+            border-radius:4px; 
+            font-family:inherit; 
+            font-size:14px;
+            box-shadow: 0 0 10px rgba(0,255,65,0.05);
+        }
+        select { cursor:pointer; }
+        select option { background:#000; }
+        input { flex:1; min-width:200px; }
+        input:focus, select:focus { outline:none; border-color:#ff0040; box-shadow: 0 0 20px rgba(255,0,64,0.15); }
+        button { 
+            background:#001a0a; 
+            cursor:pointer; 
+            padding:8px 20px;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background:#ff0040; 
+            color:#000; 
+            box-shadow: 0 0 30px rgba(255,0,64,0.3);
+            border-color:#ff0040;
+        }
+        button:disabled { opacity:0.4; cursor:not-allowed; }
+        button.stop { border-color:#ff0040; color:#ff0040; }
+        button.stop:hover { background:#ff0040; color:#000; }
+        
+        .output { 
+            background:#000a05; 
+            padding:12px; 
+            border-radius:4px; 
+            border-left:3px solid #ff0040; 
+            white-space:pre-wrap; 
+            font-size:12px; 
+            min-height:200px;
+            max-height:300px;
+            overflow-y:auto;
+            color:#00ff41;
+            box-shadow: inset 0 0 30px rgba(0,255,65,0.02);
+            font-weight:bold;
+            font-family:'Courier New',monospace;
+        }
+        .output::-webkit-scrollbar { width:4px; }
+        .output::-webkit-scrollbar-track { background:#001a0a; }
+        .output::-webkit-scrollbar-thumb { background:#00ff41; }
+        
+        .footer { 
+            text-align:center; 
+            border-top:1px solid #00ff41; 
+            padding-top:12px; 
+            margin-top:20px; 
+            font-size:12px; 
+            color:#008822; 
+        }
+        .status-dot { 
+            display:inline-block; 
+            width:8px; 
+            height:8px; 
+            border-radius:50%; 
+            background:#00ff41; 
+            margin-right:6px;
+            box-shadow: 0 0 10px #00ff41;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity:1; }
+            50% { opacity:0.3; }
+        }
+        
+        .stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:10px 0; }
+        .stat-box { background:#000a05; border:1px solid #00ff41; padding:8px; text-align:center; border-radius:4px; }
+        .stat-box .num { color:#ff0040; font-size:20px; font-weight:bold; text-shadow:0 0 20px rgba(255,0,64,0.2); }
+        .stat-box .label { color:#008822; font-size:10px; }
+        
+        ::selection { background:#ff0040; color:#000; }
+
+        .target-type { display:flex; gap:6px; }
+        .target-type button { 
+            padding:6px 15px; 
+            font-size:12px; 
+            border-radius:4px;
+            background:#001a0a;
+            border:1px solid #00ff41;
+            color:#00cc33;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .target-type button.active { 
+            background:#00ff41; 
+            color:#000; 
+            border-color:#00ff41;
+            box-shadow:0 0 20px rgba(0,255,65,0.3);
+        }
+        .target-type button:hover { background:#00ff41; color:#000; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>D<span>DOS</span> · NUKER</h1>
+        <p>═ DDoS · v1.0 ═</p>
+        <p class="sub">[+] 12,847 active nodes · 4,392 bots online</p>
+        <p class="sub" style="color:#006622;">█████████████████████████████████████████</p>
+    </div>
+
+    <div class="card">
+        <h3>⚡ ATTACK TARGET</h3>
+        <div class="row">
+            <label>TARGET:</label>
+            <div class="target-type">
+                <button id="typeIP" class="active">IP ADDRESS</button>
+                <button id="typeWebsite">WEBSITE</button>
+            </div>
+        </div>
+        <div class="row">
+            <label id="targetLabel">IP ADDRESS:</label>
+            <input type="text" id="targetInput" placeholder="Enter IP address" value="192.168.1.1">
+        </div>
+        <div class="row" id="websiteRow" style="display:none;">
+            <label>PORT:</label>
+            <select id="portSelect">
+                <option value="80">HTTP (80)</option>
+                <option value="443">HTTPS (443)</option>
+                <option value="21">FTP (21)</option>
+                <option value="22">SSH (22)</option>
+                <option value="53">DNS (53)</option>
+                <option value="8080">HTTP Proxy (8080)</option>
+                <option value="8443">HTTPS Alt (8443)</option>
+            </select>
+            <input type="text" id="portInput" placeholder="Custom port" value="80" style="flex:0.3; min-width:80px;">
+        </div>
+        <div class="row">
+            <label style="min-width:100px;">THREADS:</label>
+            <input type="text" id="threadsInput" placeholder="Threads" value="500" style="flex:0.3; min-width:80px;">
+        </div>
+        <div class="row" style="gap:10px;">
+            <button id="attackBtn" style="flex:1;">▶ INITIATE ATTACK</button>
+            <button id="stopBtn" class="stop" style="flex:0.5;">■ STOP</button>
+        </div>
+        <div class="stats">
+            <div class="stat-box"><div class="num" id="packetsSent">0</div><div class="label">PACKETS SENT</div></div>
+            <div class="stat-box"><div class="num" id="attackSpeed">0</div><div class="label">KB/S</div></div>
+            <div class="stat-box"><div class="num" id="attackTime">00:00</div><div class="label">TIME ELAPSED</div></div>
+        </div>
+        <div class="output" id="attackOutput">[SYSTEM] READY · AWAITING TARGET</div>
+    </div>
+
+    <div class="footer">
+        <span class="status-dot"></span> 14 NODES ACTIVE · ENCRYPTED · TOR COMPATIBLE<br>
+        <span style="color:#006622;">NUKER · STEPXG · 2026</span>
+    </div>
+</div>
+
+<script>
+    let attacking = false;
+    let packetCount = 0;
+    let speedCount = 0;
+    let seconds = 0;
+    let interval = null;
+    let timerInterval = null;
+    let targetType = 'ip';
+
+    // Website to IP mapping (fake resolver)
+    const websiteMap = {
+        'google.com': '142.250.185.78',
+        'youtube.com': '142.250.185.46',
+        'facebook.com': '157.240.1.35',
+        'twitter.com': '104.244.42.65',
+        'instagram.com': '157.240.1.174',
+        'tiktok.com': '23.13.195.21',
+        'reddit.com': '151.101.1.140',
+        'github.com': '140.82.121.3',
+        'amazon.com': '176.32.103.205',
+        'netflix.com': '54.237.197.115',
+        'spotify.com': '35.186.224.47',
+        'discord.com': '162.159.137.232',
+        'twitch.tv': '151.101.194.167',
+        'whatsapp.com': '157.240.1.174',
+        'telegram.org': '149.154.167.99',
+        'roblox.com': '128.116.104.123',
+        'microsoft.com': '20.70.246.20',
+        'apple.com': '17.253.144.10',
+        'yahoo.com': '98.137.11.163',
+        'bing.com': '204.79.197.200'
+    };
+
+    function formatTime(s) {
+        const m = String(Math.floor(s / 60)).padStart(2, '0');
+        const sec = String(s % 60).padStart(2, '0');
+        return `${m}:${sec}`;
+    }
+
+    function randomIP() {
+        return `${Math.floor(Math.random()*255)+1}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+    }
+
+    function resolveWebsite(domain) {
+        const clean = domain.toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        return websiteMap[clean] || randomIP();
+    }
+
+    function log(output, msg) {
+        const lines = output.textContent.split('\n');
+        lines.push(msg);
+        if (lines.length > 50) lines.shift();
+        output.textContent = lines.join('\n');
+        output.scrollTop = output.scrollHeight;
+    }
+
+    // Toggle IP / Website
+    document.getElementById('typeIP').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('typeWebsite').classList.remove('active');
+        targetType = 'ip';
+        document.getElementById('targetLabel').textContent = 'IP ADDRESS:';
+        document.getElementById('targetInput').placeholder = 'Enter IP address';
+        document.getElementById('targetInput').value = '192.168.1.1';
+        document.getElementById('websiteRow').style.display = 'none';
+        document.getElementById('portInput').value = '80';
+    });
+
+    document.getElementById('typeWebsite').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('typeIP').classList.remove('active');
+        targetType = 'website';
+        document.getElementById('targetLabel').textContent = 'WEBSITE:';
+        document.getElementById('targetInput').placeholder = 'Enter domain (e.g., google.com)';
+        document.getElementById('targetInput').value = 'google.com';
+        document.getElementById('websiteRow').style.display = 'flex';
+        document.getElementById('portInput').value = '80';
+    });
+
+    document.getElementById('attackBtn').addEventListener('click', function() {
+        if (attacking) return;
+        
+        let target = document.getElementById('targetInput').value.trim() || "0.0.0.0";
+        let port = document.getElementById('portInput').value.trim() || "80";
+        const threads = parseInt(document.getElementById('threadsInput').value) || 500;
+        const output = document.getElementById('attackOutput');
+        const packetsEl = document.getElementById('packetsSent');
+        const speedEl = document.getElementById('attackSpeed');
+        const timeEl = document.getElementById('attackTime');
+
+        let resolvedIP = target;
+        let displayTarget = target;
+
+        if (targetType === 'website') {
+            resolvedIP = resolveWebsite(target);
+            displayTarget = `${target} → ${resolvedIP}`;
+        }
+
+        attacking = true;
+        packetCount = 0;
+        speedCount = 0;
+        seconds = 0;
+        document.getElementById('attackBtn').disabled = true;
+
+        output.textContent = '';
+        log(output, `[+] RESOLVING TARGET...`);
+        if (targetType === 'website') {
+            log(output, `[+] DOMAIN: ${target} → IP: ${resolvedIP}`);
+        }
+        log(output, `[+] TARGET: ${displayTarget}:${port}`);
+        log(output, `[+] THREADS: ${threads} · PROTOCOL: TCP/UDP MIX`);
+        log(output, `[+] CONNECTING TO BOTNET...`);
+        setTimeout(() => log(output, `[+] 4,392 BOTS ONLINE · READY`), 500);
+        setTimeout(() => log(output, `[+] LAUNCHING ATTACK...`), 1000);
+        setTimeout(() => log(output, `[+] PACKETS FLOWING...`), 1500);
+
+        let ips = [];
+        for (let i = 0; i < 20; i++) ips.push(randomIP());
+
+        interval = setInterval(() => {
+            if (!attacking) return;
+            const count = Math.floor(Math.random() * 50 + 20);
+            packetCount += count;
+            speedCount += count * 64;
+            packetsEl.textContent = packetCount.toLocaleString();
+            speedEl.textContent = Math.floor(speedCount / 1024);
+
+            const fakeIP = ips[Math.floor(Math.random() * ips.length)];
+            const size = Math.floor(Math.random() * 1400 + 64);
+            const proto = Math.random() > 0.5 ? 'TCP' : 'UDP';
+            log(output, `[${proto}] ${fakeIP}:${Math.floor(Math.random()*65535+1024)} → ${resolvedIP}:${port} (${size} bytes)`);
+
+            if (Math.random() > 0.85) {
+                log(output, `[!] SYNC FLOOD · ${randomIP()} spoofed`);
+            }
+            if (Math.random() > 0.92) {
+                log(output, `[⚠] AMPLIFICATION · 412x reflection`);
+            }
+
+        }, 100);
+
+        timerInterval = setInterval(() => {
+            seconds++;
+            timeEl.textContent = formatTime(seconds);
+        }, 1000);
+
+        setTimeout(() => {
+            if (attacking) {
+                log(output, `[+] ATTACK SUSTAINED · ${packetCount.toLocaleString()} PACKETS SENT`);
+            }
+        }, 3000);
+
+        document.getElementById('stopBtn').style.display = 'block';
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', function() {
+        attacking = false;
+        const output = document.getElementById('attackOutput');
+        document.getElementById('attackBtn').disabled = false;
+
+        if (interval) clearInterval(interval);
+        if (timerInterval) clearInterval(timerInterval);
+
+        log(output, `[!] ATTACK STOPPED BY OPERATOR`);
+        log(output, `[+] TOTAL PACKETS: ${document.getElementById('packetsSent').textContent}`);
+        log(output, `[+] DURATION: ${document.getElementById('attackTime').textContent}`);
+        log(output, `[SYSTEM] STANDBY · AWAITING NEXT TARGET`);
+
+        setTimeout(() => {
+            document.getElementById('stopBtn').style.display = 'block';
+        }, 100);
+    });
+
+    document.getElementById('stopBtn').style.display = 'block';
+</script>
+</body>
+</html>
